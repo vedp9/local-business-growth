@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Vendor {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  storeName String
+  createdAt DateTime @default(now())
+  sales     Sale[]
+}
+
+model Sale {
+  id            Int      @id @default(autoincrement())
+  vendorId      Int
+  vendor        Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  productName   String
+  quantity      Int
+  unitPrice     Float
+  totalAmount   Float
+  paymentMethod String   // "Cash", "UPI", "Card", "Other"
+  customerName  String?
+  customerPhone String?
+  saleDate      DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  // TODO (Phase 2): Introduce a `Product` model (per vendor) and replace free-text productName with productId for faster selection and inventory features.
+
+  @@index([vendorId, saleDate])
+}
