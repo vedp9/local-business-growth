@@ -49,7 +49,7 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
   const fetchSales = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/sales?filter=${filter}`);
+      const res = await fetch(`/local-vendor-growth/api/sales?filter=${filter}`);
       if (res.ok) {
         const data = await res.json();
         setSales(data.sales || []);
@@ -71,7 +71,7 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
   // Logout handler
   const handleLogout = async () => {
     try {
-      const res = await fetch('/api/auth/logout', { method: 'POST' });
+      const res = await fetch('/local-vendor-growth/api/auth/logout', { method: 'POST' });
       if (res.ok) {
         router.push('/login');
         router.refresh();
@@ -85,7 +85,7 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
   const handleSeed = async () => {
     setSeeding(true);
     try {
-      const res = await fetch('/api/sales/seed', { method: 'POST' });
+      const res = await fetch('/local-vendor-growth/api/sales/seed', { method: 'POST' });
       if (res.ok) {
         setFilter('all');
         await fetchSales();
@@ -124,7 +124,7 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
     setSubmitting(true);
 
     try {
-      const res = await fetch('/api/sales', {
+      const res = await fetch('/local-vendor-growth/api/sales', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -165,7 +165,7 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
     if (!confirm('Are you sure you want to delete this sale entry?')) return;
 
     try {
-      const res = await fetch(`/api/sales?id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/local-vendor-growth/api/sales?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
         fetchSales();
       } else {
