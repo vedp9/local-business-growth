@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: process.env.STATIC_EXPORT === 'true' ? 'export' : undefined,
   basePath: '/local-vendor-growth',
-  assetPrefix: '/local-vendor-growth/',
   images: {
     unoptimized: true,
   },

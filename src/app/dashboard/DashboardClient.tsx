@@ -28,6 +28,11 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
   const [filter, setFilter] = useState<'today' | '7days' | '30days' | 'all'>('all');
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Form Fields
   const [productName, setProductName] = useState('');
@@ -221,6 +226,14 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
 
   const maxDailyValue = Math.max(...dailyData.map((d) => d.value), 10);
   const maxProductValue = Math.max(...topProductsData.map((p) => p.value), 10);
+
+  if (!mounted) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-app)', color: 'var(--text-secondary)' }}>
+        <div style={{ fontWeight: 600 }}>Loading ledger dashboard...</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.layout}>
