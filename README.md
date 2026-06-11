@@ -67,9 +67,9 @@ Open [http://localhost:3000](http://localhost:3000) on your browser to view the 
 *   **Vendor Log In Panel**:  
   ![Vendor login](docs/assets/screenshot-login.png)
 *   **Interactive Analytics Dashboard**:  
-  ![Dashboard](docs/assets/screenshot-dashboard.mov)
+  ![Dashboard](docs/assets/screenshot-dashboard.gif)
 *   **Sales Entry & Ledger Views**:  
-  ![POS screen](docs/assets/screenshot-pos.mov)
+  ![POS screen](docs/assets/screenshot-pos.gif)
 
 ---
 
