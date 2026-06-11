@@ -64,7 +64,6 @@ Open [http://localhost:3000](http://localhost:3000) on your browser to view the 
 
 ## 📸 Screenshots
 
-*(Placeholder image links - update paths upon deployment)*
 *   **Vendor Log In Panel**: `docs/assets/screenshot-login.png`
 *   **Interactive Analytics Dashboard**: `docs/assets/screenshot-dashboard.png`
 *   **Sales Entry & Ledger Views**: `docs/assets/screenshot-pos.png`
