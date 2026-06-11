@@ -30,7 +30,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await fetch('/local-vendor-growth/api/auth/register', {
+      const res = await fetch('/local-business-growth/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, storeName }),
