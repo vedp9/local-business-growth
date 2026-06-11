@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './dashboard.module.css';
+import { mockDb } from '@/lib/mockDb';
 
 interface Sale {
   id: number;
@@ -53,14 +54,30 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
   // Fetch sales from API
   const fetchSales = useCallback(async () => {
     setLoading(true);
+
+    const runFallback = () => {
+      const mockSales = mockDb.getSales(filter);
+      setSales(mockSales);
+      setLoading(false);
+    };
+
+    if (mockDb.isStaticMode()) {
+      runFallback();
+      return;
+    }
+
     try {
       const res = await fetch(`/local-business-growth/api/sales?filter=${filter}`);
+      if (res.status === 404) {
+        runFallback();
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setSales(data.sales || []);
       }
     } catch (err) {
-      console.error('Failed to fetch sales', err);
+      runFallback();
     } finally {
       setLoading(false);
     }
@@ -75,28 +92,60 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
 
   // Logout handler
   const handleLogout = async () => {
+    const runFallback = () => {
+      mockDb.clearSessionCookie();
+      router.push('/login');
+      router.refresh();
+    };
+
+    if (mockDb.isStaticMode()) {
+      runFallback();
+      return;
+    }
+
     try {
       const res = await fetch('/local-business-growth/api/auth/logout', { method: 'POST' });
+      if (res.status === 404) {
+        runFallback();
+        return;
+      }
       if (res.ok) {
         router.push('/login');
         router.refresh();
       }
     } catch (err) {
-      console.error('Failed to log out', err);
+      runFallback();
     }
   };
 
   // Seed handler
   const handleSeed = async () => {
     setSeeding(true);
+
+    const runFallback = async () => {
+      mockDb.seedSales();
+      setFilter('all');
+      await fetchSales();
+      setSeeding(false);
+    };
+
+    if (mockDb.isStaticMode()) {
+      await runFallback();
+      return;
+    }
+
     try {
       const res = await fetch('/local-business-growth/api/sales/seed', { method: 'POST' });
+      if (res.status === 404) {
+        await runFallback();
+        return;
+      }
       if (res.ok) {
         setFilter('all');
         await fetchSales();
       }
     } catch (err) {
-      console.error('Failed to seed sales data', err);
+      await runFallback();
     } finally {
       setSeeding(false);
     }
@@ -128,6 +177,32 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
 
     setSubmitting(true);
 
+    const runFallback = () => {
+      mockDb.addSale({
+        productName,
+        quantity: qty,
+        unitPrice: price,
+        paymentMethod,
+        saleDate: saleDate ? new Date(saleDate).toISOString() : new Date().toISOString(),
+        customerName: customerName || null,
+        customerPhone: customerPhone || null,
+      });
+      setFormSuccess('Sale recorded successfully!');
+      setProductName('');
+      setQuantity('1');
+      setUnitPrice('');
+      setCustomerName('');
+      setCustomerPhone('');
+      setShowCustomerFields(false);
+      fetchSales();
+      setSubmitting(false);
+    };
+
+    if (mockDb.isStaticMode()) {
+      runFallback();
+      return;
+    }
+
     try {
       const res = await fetch('/local-business-growth/api/sales', {
         method: 'POST',
@@ -143,13 +218,17 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
         }),
       });
 
-      const data = await res.json();
+      if (res.status === 404) {
+        runFallback();
+        return;
+      }
+
+      const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        setFormError(data.error || 'Failed to record sale.');
+        setFormError((data && data.error) || 'Failed to record sale.');
       } else {
         setFormSuccess('Sale recorded successfully!');
-        // Reset essential inputs but preserve paymentMethod and saleDate for fast rush-hour typing
         setProductName('');
         setQuantity('1');
         setUnitPrice('');
@@ -159,7 +238,7 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
         fetchSales();
       }
     } catch (err) {
-      setFormError('A network error occurred. Please try again.');
+      runFallback();
     } finally {
       setSubmitting(false);
     }
@@ -169,17 +248,41 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
   const handleDeleteSale = async (id: number) => {
     if (!confirm('Are you sure you want to delete this sale entry?')) return;
 
+    const runFallback = () => {
+      try {
+        const salesStr = localStorage.getItem('local_sales');
+        if (salesStr) {
+          const salesList = JSON.parse(salesStr);
+          const updated = salesList.filter((s: any) => s.id !== id);
+          localStorage.setItem('local_sales', JSON.stringify(updated));
+          fetchSales();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    if (mockDb.isStaticMode()) {
+      runFallback();
+      return;
+    }
+
     try {
       const res = await fetch(`/local-business-growth/api/sales?id=${id}`, { method: 'DELETE' });
+      if (res.status === 404) {
+        runFallback();
+        return;
+      }
       if (res.ok) {
         fetchSales();
       } else {
         alert('Failed to delete sale record.');
       }
     } catch (err) {
-      alert('A network error occurred.');
+      runFallback();
     }
   };
+
 
   // KPI Calculations
   const totalRevenue = sales.reduce((sum, s) => sum + s.totalAmount, 0);

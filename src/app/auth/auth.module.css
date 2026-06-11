@@ -153,3 +153,32 @@
   color: var(--primary-hover);
   text-decoration: underline;
 }
+
+.demoButton {
+  min-height: 48px;
+  width: 100%;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  cursor: pointer;
+}
+
+.demoButton:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--text-secondary);
+}
+
+.demoButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

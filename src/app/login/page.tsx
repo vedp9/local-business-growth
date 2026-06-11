@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from '../auth/auth.module.css';
+import { mockDb } from '@/lib/mockDb';
 
 export default function Login() {
   const router = useRouter();
@@ -11,6 +12,17 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const runFallback = () => {
+    const result = mockDb.login(email, password);
+    if (result.success) {
+      router.push('/dashboard');
+      router.refresh();
+    } else {
+      setError(result.error || 'Invalid credentials.');
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +35,11 @@ export default function Login() {
 
     setLoading(true);
 
+    if (mockDb.isStaticMode()) {
+      runFallback();
+      return;
+    }
+
     try {
       const res = await fetch('/local-business-growth/api/auth/login', {
         method: 'POST',
@@ -30,20 +47,31 @@ export default function Login() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
+      if (res.status === 404) {
+        runFallback();
+        return;
+      }
+
+      const data = await res.json().catch(() => null);
 
       if (!res.ok) {
-        setError(data.error || 'Invalid credentials.');
+        setError((data && data.error) || 'Invalid credentials.');
         setLoading(false);
       } else {
-        // Success: redirect to dashboard
         router.push('/dashboard');
         router.refresh();
       }
     } catch (err) {
-      setError('A network error occurred. Please try again.');
-      setLoading(false);
+      runFallback();
     }
+  };
+
+  const handleDemoLogin = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    mockDb.setSessionCookie('admin@store.com', 'Corner Grocery Store');
+    router.push('/dashboard');
+    router.refresh();
   };
 
   return (
@@ -88,6 +116,15 @@ export default function Login() {
           <button type="submit" className={styles.submitButton} disabled={loading}>
             {loading ? 'Logging in...' : 'Sign In'}
           </button>
+
+          <button 
+            type="button" 
+            onClick={handleDemoLogin} 
+            className={styles.demoButton}
+            disabled={loading}
+          >
+            Sign In as Guest (Demo)
+          </button>
         </form>
 
         <p className={styles.footerText}>
@@ -100,3 +137,4 @@ export default function Login() {
     </div>
   );
 }
+
