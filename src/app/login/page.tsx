@@ -79,6 +79,9 @@ export default function Login() {
       <div className={styles.card}>
         <div className={styles.header}>
           <h1 className={styles.title}>Local Vendor SaaS</h1>
+          <p className={styles.explanation}>
+            This is a simple web app for local shop owners to record daily sales and see how their business is growing in one place.
+          </p>
           <p className={styles.subtitle}>Log in to manage your shop sales</p>
         </div>
 
@@ -123,7 +126,7 @@ export default function Login() {
             className={styles.demoButton}
             disabled={loading}
           >
-            Sign In as Guest (Demo)
+            Test as Guest (For Testing Purpose Only)
           </button>
         </form>
 

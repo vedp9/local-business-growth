@@ -344,7 +344,14 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
       <aside className={styles.sidebar}>
         <div>
           <div className={styles.sidebarBrand}>
-            <h2 className={styles.storeTitle}>{storeName}</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <h2 className={styles.storeTitle}>{storeName}</h2>
+              {email === 'admin@store.com' && (
+                <div style={{ marginTop: '0.15rem' }}>
+                  <span className={styles.guestBadge}>Guest / Testing Mode</span>
+                </div>
+              )}
+            </div>
             <p className={styles.storeSubtitle}>{email}</p>
           </div>
           
@@ -365,7 +372,12 @@ export default function DashboardClient({ storeName, email }: DashboardClientPro
         {/* Header Block */}
         <header className={styles.header}>
           <div className={styles.headerInfo}>
-            <h1>Sales Dashboard</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <h1>Sales Dashboard</h1>
+              {email === 'admin@store.com' && (
+                <span className={styles.guestBadgeHeader}>Guest / Testing Mode</span>
+              )}
+            </div>
             <p>Welcome back to your shop ledger</p>
           </div>
 
